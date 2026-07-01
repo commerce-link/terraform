@@ -1,0 +1,87 @@
+project_name = "commerce-link"
+environment  = "prod"
+aws_region   = "eu-central-1"
+
+vpc_cidr = "10.42.0.0/16"
+az_count = 3
+
+beanstalk_instance_type = "t3.medium"
+beanstalk_min_size      = 1
+beanstalk_max_size      = 1
+
+# Set after publishing an Elastic Beanstalk application version from commerce-link/app.
+# application_version_label = "2026.06.17-prod-1"
+
+# Production domains. Terraform creates the hosted zone named by
+# route53_zone_name, and you delegate it by adding the output NS records at the
+# registrar or parent DNS zone.
+app_domain = "app.example.com"
+api_domain = "api.example.com"
+
+# Replace with your root domain or delegated subdomain.
+route53_zone_name = "example.com"
+
+# Set true after DNS delegation exists.
+create_acm_certificate = false
+
+# Use this instead of create_acm_certificate when an appropriate certificate
+# already exists in the same AWS region.
+# acm_certificate_arn = "arn:aws:acm:eu-central-1:123456789012:certificate/00000000-0000-0000-0000-000000000000"
+
+cognito_callback_urls = [
+  "https://app.example.com/login/oauth2/code/cognito"
+]
+
+cognito_logout_urls = [
+  "https://app.example.com/logout-success"
+]
+
+# Cognito hosted UI domain prefixes are globally unique per region.
+cognito_domain_prefix = "commerce-link-example-prod"
+
+secret_name_prefixes = [
+  "commerce-link/"
+]
+
+parameter_name_prefixes = [
+  "/commerce-link/"
+]
+
+valkey_engine_version           = "9.0"
+valkey_parameter_group_family   = "valkey9"
+valkey_node_type                = "cache.t4g.micro"
+valkey_node_count               = 1
+valkey_endpoint_parameter_name  = "/commercelink/redis/connection"
+valkey_endpoint_parameter_type  = "SecureString"
+valkey_auth_secret_name         = "commercelink/redis/auth-token"
+valkey_parameter_overrides      = {}
+
+scheduler_schedules = {
+  basket-cleanup = {
+    queue_name           = "basket-cleanup-queue"
+    schedule_expression  = "cron(0 3 * * ? *)"
+    timezone             = "Europe/Warsaw"
+  }
+
+  product-cleanup = {
+    queue_name           = "product-cleanup-queue"
+    schedule_expression  = "cron(0 2 * * ? *)"
+    timezone             = "Europe/Warsaw"
+  }
+
+  process-delivered-order = {
+    queue_name           = "order-lifecycle-queue"
+    schedule_expression  = "cron(0 9 * * ? *)"
+    timezone             = "Europe/Warsaw"
+  }
+
+  process-rma = {
+    queue_name           = "rma-lifecycle-queue"
+    schedule_expression  = "cron(30 9 * * ? *)"
+    timezone             = "Europe/Warsaw"
+  }
+}
+
+tags = {
+  Owner = "commerce-link"
+}
