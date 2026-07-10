@@ -129,6 +129,50 @@ variable "cognito_domain_prefix" {
   default     = null
 }
 
+variable "cognito_ses_source_arn" {
+  description = "Optional SES identity ARN used by Cognito to send emails (DEVELOPER sending account). Null keeps the COGNITO_DEFAULT sender (~50 emails/day)."
+  type        = string
+  default     = null
+}
+
+variable "cognito_from_email_address" {
+  description = "FROM address for Cognito emails. Only used when cognito_ses_source_arn is set."
+  type        = string
+  default     = null
+}
+
+variable "cognito_invite_email_subject" {
+  description = "Subject of the Cognito invitation email sent on AdminCreateUser. Set to null to fall back to the AWS default (English) template."
+  type        = string
+  default     = "CommerceLink — Twoje konto zostało utworzone"
+}
+
+variable "cognito_invite_email_message" {
+  description = "Body of the Cognito invitation email (HTML). Must contain the {username} and {####} placeholders. Only used when cognito_invite_email_subject is set."
+  type        = string
+  default     = <<-EOT
+    <p>Witaj!</p>
+    <p>Twoje konto w platformie <b>CommerceLink</b> jest gotowe.</p>
+    <p>Login: <b>{username}</b><br>
+    Hasło tymczasowe: <b>{####}</b></p>
+    <p>Przy pierwszym logowaniu poprosimy Cię o ustawienie własnego hasła.</p>
+    <p>Do zobaczenia,<br>
+    Zespół CommerceLink</p>
+  EOT
+}
+
+variable "cognito_invite_sms_message" {
+  description = "SMS variant of the Cognito invitation message. Required by the API whenever the invite template is set; must contain {username} and {####} and fit in 140 characters."
+  type        = string
+  default     = "Twoj login: {username}, haslo tymczasowe: {####}"
+}
+
+variable "extra_spring_profiles" {
+  description = "Additional Spring profiles appended to SPRING_PROFILES_ACTIVE after \"prod\" (e.g. [\"demo\"] enables self-service demo registration)."
+  type        = list(string)
+  default     = []
+}
+
 variable "cognito_resource_server_identifier" {
   description = "Optional Cognito resource server identifier for CommerceLink custom scopes."
   type        = string

@@ -34,7 +34,7 @@ locals {
     {
       SERVER_PORT                     = "5000"
       SERVER_FORWARD_HEADERS_STRATEGY = "native"
-      SPRING_PROFILES_ACTIVE          = "prod"
+      SPRING_PROFILES_ACTIVE          = join(",", concat(["prod"], var.extra_spring_profiles))
       APPLICATION_ENV                 = "prod"
       AMAZON_AWS_REGION               = var.aws_region
       SQS_PRICELIST_QUEUE_ARN         = aws_sqs_queue.app["catalog-pricelist-queue"].arn
@@ -57,6 +57,7 @@ locals {
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COGNITO_CLIENT_ID     = aws_cognito_user_pool_client.app.id
       SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COGNITO_CLIENT_SECRET = aws_cognito_user_pool_client.app.client_secret
       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COGNITO_ISSUER_URI        = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.app.id}"
+      COGNITO_USER_POOL_ID                                             = aws_cognito_user_pool.app.id
     },
     var.cognito_domain_prefix == null ? {} : {
       COGNITO_DOMAIN = "https://${var.cognito_domain_prefix}.auth.${var.aws_region}.amazoncognito.com"

@@ -7,6 +7,21 @@ resource "aws_cognito_user_pool" "app" {
 
   admin_create_user_config {
     allow_admin_create_user_only = true
+
+    dynamic "invite_message_template" {
+      for_each = var.cognito_invite_email_subject == null ? [] : [1]
+      content {
+        email_subject = var.cognito_invite_email_subject
+        email_message = var.cognito_invite_email_message
+        sms_message   = var.cognito_invite_sms_message
+      }
+    }
+  }
+
+  email_configuration {
+    email_sending_account = var.cognito_ses_source_arn == null ? "COGNITO_DEFAULT" : "DEVELOPER"
+    source_arn            = var.cognito_ses_source_arn
+    from_email_address    = var.cognito_from_email_address
   }
 
   password_policy {

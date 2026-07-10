@@ -116,6 +116,16 @@ data "aws_iam_policy_document" "app" {
   }
 
   statement {
+    sid = "CognitoDemoUserAdmin"
+    actions = [
+      "cognito-idp:AdminCreateUser",
+      "cognito-idp:AdminGetUser",
+      "cognito-idp:AdminDeleteUser",
+    ]
+    resources = [aws_cognito_user_pool.app.arn]
+  }
+
+  statement {
     sid = "SecretsManagerConfiguredPrefixes"
     actions = [
       "secretsmanager:CreateSecret",
