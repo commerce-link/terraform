@@ -112,21 +112,89 @@ Then apply again so Terraform can validate and attach the certificate.
 
 ## 5. Build the CommerceLink App
 
-In the CommerceLink app repository, build the production artifact using the app
-repo's production dependency and profile setup.
+In the CommerceLink app repository, build the production artifact:
 
-Create a Beanstalk source bundle containing:
+```bash
+mvn clean package -DskipTests
+```
+
+Build profiles matter:
++ **Production**: build without extra Maven profiles (as above). The default
+  `full` profile bundles the real supplier adapters only.
++ **Dev/test environments**: add `-Pdev` to include the Acme/AcmeB test
+  suppliers. Never deploy a `-Pdev` artifact to production — use distinct
+  version labels (for example `-dev-` vs `-prod-`) to keep them apart.
+
+Create a Beanstalk source bundle containing the built jar and a `Procfile`:
 
 ```text
 app.jar
 Procfile
 ```
 
-Example `Procfile`:
+Example `Procfile` (the jar name must match the file inside the bundle):
 
 ```Procfile
 web: java -jar app.jar
 ```
+
+## 5a. Self-Service Registration Modes (optional)
+
+Public registration at `/register` is disabled by default
+(`app.registration.enabled=false`). Two ways to enable it:
+
+**Demo environment** — full demo stores with seeded catalog, sample orders and
+a TTL-based cleanup, plus a permanent demo banner:
+
+```hcl
+extra_spring_profiles = ["demo"]
+```
+
+The `demo` Spring profile sets `app.registration.enabled=true` and
+`app.registration.demo=true`. The legacy `/demo/register` URL redirects to
+`/register`. Expired demo stores are cleaned up hourly whenever
+`app.registration.demo=true`.
+
+**Production registration** — bare production stores, required store name, and
+the store admin invited by e-mail through Cognito:
+
+```hcl
+extra_app_environment = {
+  APP_REGISTRATION_ENABLED = "true"
+}
+```
+
+Before enabling production registration publicly:
++ Cognito must be able to deliver invitation e-mails. With
+  `COGNITO_DEFAULT` sending, daily limits are low; configure
+  `cognito_ses_source_arn` and request SES production access for real traffic.
++ The registration rate limiter keeps its counters in instance memory and
+  trusts the `X-Forwarded-For` header. With `beanstalk_max_size` above 1 the
+  limits apply per instance, and header hardening is a known follow-up in the
+  app repository. Keep a single instance or accept the weaker limits until
+  that is addressed.
+
+## 5b. Seed Data for Dev/Demo Environments (optional)
+
+The application does not seed S3 data outside local development (the
+`local-init/s3/**` sync is a LocalStack-only bootstrap). On a fresh dev/demo
+environment upload the seed files manually from the app repository:
+
+```bash
+# Taxonomy — powers the category counters on /inventory from first boot
+aws s3 cp app/src/main/resources/local-init/s3/datalake/taxonomy/2026-07-13.csv \
+  s3://<datalake-bucket>/taxonomy/2026-07-13.csv
+
+# Acme/AcmeB test supplier feeds — require a -Pdev application build
+aws s3 cp app/src/main/resources/local-init/s3/feeds/acme-feed.csv  s3://<feeds-bucket>/acme-feed.csv
+aws s3 cp app/src/main/resources/local-init/s3/feeds/acmeb-feed.csv s3://<feeds-bucket>/acmeb-feed.csv
+```
+
+Bucket names come from `terraform output` (resources
+`aws_s3_bucket.app["datalake"]` and `aws_s3_bucket.app["feeds"]`). With the
+feeds in place the taxonomy also rebuilds itself in memory on every start, so
+the taxonomy file upload is a belt-and-braces guarantee rather than a hard
+requirement on feed-enabled environments.
 
 ## 6. Publish an Elastic Beanstalk Application Version
 

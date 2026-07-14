@@ -56,6 +56,15 @@ valkey_endpoint_parameter_type  = "SecureString"
 valkey_auth_secret_name         = "commercelink/redis/auth-token"
 valkey_parameter_overrides      = {}
 
+# Self-service registration (see README section 5a). Disabled by default.
+# Demo environment (demo stores with seeded data, TTL cleanup, demo banner):
+# extra_spring_profiles = ["demo"]
+# Production registration (bare stores, Cognito e-mail invitations; check the
+# SES and rate-limiter caveats in the README before enabling publicly):
+# extra_app_environment = {
+#   APP_REGISTRATION_ENABLED = "true"
+# }
+
 scheduler_schedules = {
   basket-cleanup = {
     queue_name           = "basket-cleanup-queue"
