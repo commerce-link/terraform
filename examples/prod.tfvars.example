@@ -89,6 +89,15 @@ scheduler_schedules = {
     schedule_expression  = "cron(30 9 * * ? *)"
     timezone             = "Europe/Warsaw"
   }
+
+  # Periodic marketplace order import. The listener consumes messages of the form
+  # {"marketplace":"<ProviderName>"} and imports orders for every store connected
+  # to that marketplace. Add one schedule per active marketplace integration.
+  allegro-orders-import = {
+    queue_name           = "marketplace-orders-import-queue"
+    schedule_expression  = "rate(10 minutes)"
+    input                = "{\"marketplace\":\"Allegro\"}"
+  }
 }
 
 tags = {
