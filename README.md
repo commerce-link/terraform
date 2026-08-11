@@ -64,6 +64,26 @@ records, optional ACM certificate, and optional SES identities.
 
 Every application SQS queue is created with a dedicated dead-letter queue.
 
+All S3 buckets have object versioning enabled. The `stores` bucket additionally
+carries a lifecycle rule for the `marketplace-export-runs/` prefix, where the
+marketplace offer export keeps one CSV file per export run:
+
+```
+marketplace-export-runs/{storeId}/{marketplace}/{catalogId}/{yyyy-MM-dd_HH-mm-ss}.csv
+```
+
+The timestamp is UTC and marks the **end** of the run. Files under that prefix
+expire after `marketplace_export_history_retention_days` days (7 by default).
+The live state file, `{storeId}/marketplace-exports/{marketplace}/{catalogId}/latest.csv`,
+sits outside the prefix and is never expired — the export reads it on the next
+run to work out which offers to withdraw from the marketplace, so losing it
+would make the system treat the whole assortment as orphaned.
+
+These archived files record what an export run **intended** to send, not what
+the marketplace accepted. They are written at the end of a run regardless of
+whether individual offers were rejected, so an offer refused by the marketplace
+looks exactly like a successfully published one.
+
 DynamoDB tables are not created by Terraform. They are created by the
 CommerceLink application and Mongock on first application startup.
 
