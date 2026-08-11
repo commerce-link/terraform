@@ -146,6 +146,14 @@ locals {
       visibility_timeout_seconds = 30
       message_retention_seconds  = 43200
     }
+    "supplier-purchase-queue.fifo" = {
+      fifo_queue                    = true
+      visibility_timeout_seconds    = 120
+      message_retention_seconds     = 345600
+      dlq_name                      = "supplier-purchase-dlq.fifo"
+      dlq_message_retention_seconds = 604800
+      max_receive_count             = 3
+    }
     "supplier-rolling-price-aggregate-queue" = {
       visibility_timeout_seconds = 300
       message_retention_seconds  = 43200
