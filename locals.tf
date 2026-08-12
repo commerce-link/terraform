@@ -143,8 +143,10 @@ locals {
       message_retention_seconds  = 43200
     }
     "supplier-feed-import-queue" = {
-      visibility_timeout_seconds = 30
-      message_retention_seconds  = 43200
+      visibility_timeout_seconds    = 30
+      message_retention_seconds     = 43200
+      dlq_message_retention_seconds = 604800
+      max_receive_count             = 5
     }
     "supplier-purchase-queue.fifo" = {
       fifo_queue                    = true
