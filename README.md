@@ -176,6 +176,21 @@ mode. The modes differ in what happens to an unconfirmed address:
   are unaffected.
 
 Before enabling production registration publicly:
++ The app client must allow the `aws.cognito.signin.user.admin` scope. It is in
+  the default of `cognito_allowed_oauth_scopes`, but an environment that pins
+  that variable in its own tfvars keeps the pinned list and silently misses it.
+  Confirm after `terraform apply`:
+
+  ```bash
+  aws cognito-idp describe-user-pool-client --user-pool-id <pool> \
+    --client-id <client> --query 'UserPoolClient.AllowedOAuthScopes'
+  ```
+
+  Without the scope, requesting and confirming a verification code fails with
+  `NotAuthorizedException` — but only for someone who leaves the confirmation
+  screen and signs in again later, because the token minted right after
+  registration always carries the scope. The symptom therefore shows up days
+  after the deployment, for part of the users, and locks them out for good.
 + Cognito must be able to deliver verification codes. With `COGNITO_DEFAULT`
   sending, daily limits are low; configure `cognito_ses_source_arn` and request
   SES production access for real traffic.
