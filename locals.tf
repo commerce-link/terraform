@@ -71,6 +71,12 @@ locals {
     var.app_domain == null ? {} : {
       APP_CORS = "https://${var.app_domain}"
     },
+    var.captcha_site_key == null ? {} : {
+      APP_REGISTRATION_CAPTCHA_SITE_KEY = var.captcha_site_key
+    },
+    var.captcha_secret_key == null ? {} : {
+      APP_REGISTRATION_CAPTCHA_SECRET_KEY = var.captcha_secret_key
+    },
     var.extra_app_environment
   )
 

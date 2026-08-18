@@ -182,7 +182,20 @@ variable "cognito_resource_server_identifier" {
 variable "cognito_allowed_oauth_scopes" {
   description = "OAuth scopes for the Cognito app client."
   type        = list(string)
-  default     = ["email", "openid", "profile"]
+  default     = ["aws.cognito.signin.user.admin", "email", "openid", "profile"]
+}
+
+variable "captcha_site_key" {
+  description = "Cloudflare Turnstile site key used on the registration form. Null disables the captcha."
+  type        = string
+  default     = null
+}
+
+variable "captcha_secret_key" {
+  description = "Cloudflare Turnstile secret key used to verify registration submissions server side. Null disables the captcha."
+  type        = string
+  default     = null
+  sensitive   = true
 }
 
 variable "enable_api_gateway" {

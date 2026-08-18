@@ -155,8 +155,7 @@ The `demo` Spring profile sets `app.registration.enabled=true` and
 `/register`. Expired demo stores are cleaned up hourly whenever
 `app.registration.demo=true`.
 
-**Production registration** — bare production stores, required store name, and
-the store admin invited by e-mail through Cognito:
+**Production registration** — bare production stores and a required store name:
 
 ```hcl
 extra_app_environment = {
@@ -164,15 +163,40 @@ extra_app_environment = {
 }
 ```
 
+Both modes share the same two-step flow: the visitor enters an e-mail address,
+sets a password on the next screen, and the application signs them in without
+going through the Cognito hosted UI. No invitation e-mail is sent in either
+mode. The modes differ in what happens to an unconfirmed address:
+
++ **Demo** marks the address as verified on creation, so the panel is available
+  immediately.
++ **Production** creates the account with `email_verified=false`, sends a
+  Cognito verification code, and blocks every `/dashboard` page until the code
+  is entered. Accounts created by an administrator keep their verified flag and
+  are unaffected.
+
 Before enabling production registration publicly:
-+ Cognito must be able to deliver invitation e-mails. With
-  `COGNITO_DEFAULT` sending, daily limits are low; configure
-  `cognito_ses_source_arn` and request SES production access for real traffic.
++ Cognito must be able to deliver verification codes. With `COGNITO_DEFAULT`
+  sending, daily limits are low; configure `cognito_ses_source_arn` and request
+  SES production access for real traffic.
 + The registration rate limiter keeps its counters in instance memory and
   trusts the `X-Forwarded-For` header. With `beanstalk_max_size` above 1 the
   limits apply per instance, and header hardening is a known follow-up in the
   app repository. Keep a single instance or accept the weaker limits until
   that is addressed.
+
+**Bot protection.** The e-mail screen carries a Cloudflare Turnstile widget.
+Leaving the keys unset disables the check, so configure both before exposing
+registration publicly:
+
+```hcl
+captcha_site_key   = "0x4AAA..."
+captcha_secret_key = "0x4AAA..."
+```
+
+Verification is done server side and a failed call to Cloudflare rejects the
+submission, so an outage at Cloudflare stops new registrations rather than
+letting bots through.
 
 ## 5b. Seed Data for Dev/Demo Environments (optional)
 
