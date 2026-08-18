@@ -283,6 +283,11 @@ aws cognito-idp admin-create-user \
     Name=custom:role,Value=SUPER_ADMIN
 ```
 
+Keep `email_verified` set to `true`. An account whose address is explicitly
+unverified is sent to the e-mail confirmation screen and cannot reach any
+`/dashboard` page until it confirms; the attribute being absent altogether is
+treated as verified.
+
 The standard `name` attribute is required by the current application OAuth user
 service. Without it, Cognito login can complete but the application callback can
 fail and appear as a redirect loop.
