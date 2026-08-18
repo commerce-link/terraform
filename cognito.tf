@@ -85,6 +85,7 @@ resource "aws_cognito_user_pool_client" "app" {
   logout_urls                          = var.cognito_logout_urls
 
   explicit_auth_flows = [
+    "ALLOW_ADMIN_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH",
     "ALLOW_USER_SRP_AUTH",
   ]
