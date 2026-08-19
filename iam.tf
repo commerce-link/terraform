@@ -121,6 +121,7 @@ data "aws_iam_policy_document" "app" {
       "cognito-idp:AdminCreateUser",
       "cognito-idp:AdminGetUser",
       "cognito-idp:AdminSetUserPassword",
+      "cognito-idp:AdminInitiateAuth",
       "cognito-idp:AdminDeleteUser",
     ]
     resources = [aws_cognito_user_pool.app.arn]
