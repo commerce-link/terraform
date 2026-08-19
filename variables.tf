@@ -315,6 +315,12 @@ variable "force_destroy_buckets" {
   default     = false
 }
 
+variable "marketplace_export_history_retention_days" {
+  description = "Days to keep archived marketplace offer export runs under the marketplace-export-runs/ prefix."
+  type        = number
+  default     = 7
+}
+
 variable "scheduler_schedules" {
   description = "EventBridge Scheduler definitions targeting app SQS queues."
   type = map(object({
