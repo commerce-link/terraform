@@ -154,6 +154,12 @@ locals {
       dlq_message_retention_seconds = 604800
       max_receive_count             = 5
     }
+    "supplier-order-refresh-queue" = {
+      visibility_timeout_seconds    = 1800
+      message_retention_seconds     = 345600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 6
+    }
     "supplier-purchase-queue.fifo" = {
       fifo_queue                    = true
       visibility_timeout_seconds    = 120
