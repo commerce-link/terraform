@@ -155,7 +155,7 @@ locals {
       max_receive_count             = 5
     }
     "supplier-order-refresh-queue" = {
-      visibility_timeout_seconds    = 1800
+      visibility_timeout_seconds    = 900
       message_retention_seconds     = 345600
       dlq_message_retention_seconds = 1209600
       max_receive_count             = 6
