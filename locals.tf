@@ -94,7 +94,7 @@ locals {
       message_retention_seconds  = 7200
     }
     "marketplace-order-lifecycle-queue" = {
-      visibility_timeout_seconds    = 30
+      visibility_timeout_seconds    = 300
       message_retention_seconds     = 345600
       dlq_name                      = "marketplace-order-lifecycle-dlq"
       dlq_message_retention_seconds = 604800
