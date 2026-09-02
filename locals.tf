@@ -89,12 +89,6 @@ locals {
       visibility_timeout_seconds = 300
       message_retention_seconds  = 3600
     }
-    "dropship-tracking-sweep-queue" = {
-      visibility_timeout_seconds    = 300
-      message_retention_seconds     = 345600
-      dlq_message_retention_seconds = 1209600
-      max_receive_count             = 1
-    }
     "marketplace-offer-export-queue" = {
       visibility_timeout_seconds = 300
       message_retention_seconds  = 7200
@@ -153,6 +147,12 @@ locals {
     "supplier-daily-price-snapshot-queue" = {
       visibility_timeout_seconds = 300
       message_retention_seconds  = 43200
+    }
+    "supplier-dropship-tracking-sweep-queue" = {
+      visibility_timeout_seconds    = 300
+      message_retention_seconds     = 345600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 1
     }
     "supplier-feed-import-queue" = {
       visibility_timeout_seconds    = 30
