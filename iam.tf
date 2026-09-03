@@ -65,6 +65,7 @@ data "aws_iam_policy_document" "app_dynamodb" {
       "dynamodb:Query",
       "dynamodb:Scan",
       "dynamodb:UpdateItem",
+      "dynamodb:UpdateTable",
     ]
     resources = [
       "arn:${data.aws_partition.current.partition}:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/*",
@@ -120,6 +121,8 @@ data "aws_iam_policy_document" "app" {
     actions = [
       "cognito-idp:AdminCreateUser",
       "cognito-idp:AdminGetUser",
+      "cognito-idp:AdminSetUserPassword",
+      "cognito-idp:AdminInitiateAuth",
       "cognito-idp:AdminDeleteUser",
     ]
     resources = [aws_cognito_user_pool.app.arn]

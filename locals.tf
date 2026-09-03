@@ -71,6 +71,12 @@ locals {
     var.app_domain == null ? {} : {
       APP_CORS = "https://${var.app_domain}"
     },
+    var.captcha_site_key == null ? {} : {
+      APP_REGISTRATION_CAPTCHA_SITE_KEY = var.captcha_site_key
+    },
+    var.captcha_secret_key == null ? {} : {
+      APP_REGISTRATION_CAPTCHA_SECRET_KEY = var.captcha_secret_key
+    },
     var.extra_app_environment
   )
 
@@ -142,9 +148,37 @@ locals {
       visibility_timeout_seconds = 300
       message_retention_seconds  = 43200
     }
+    "supplier-dropship-tracking-sweep-queue" = {
+      visibility_timeout_seconds    = 300
+      message_retention_seconds     = 345600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 1
+    }
     "supplier-feed-import-queue" = {
-      visibility_timeout_seconds = 30
-      message_retention_seconds  = 43200
+      visibility_timeout_seconds    = 30
+      message_retention_seconds     = 43200
+      dlq_message_retention_seconds = 604800
+      max_receive_count             = 5
+    }
+    "supplier-order-refresh-queue" = {
+      visibility_timeout_seconds    = 900
+      message_retention_seconds     = 345600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 6
+    }
+    "supplier-order-tracking-queue" = {
+      visibility_timeout_seconds    = 120
+      message_retention_seconds     = 345600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 3
+    }
+    "supplier-purchase-queue.fifo" = {
+      fifo_queue                    = true
+      visibility_timeout_seconds    = 120
+      message_retention_seconds     = 345600
+      dlq_name                      = "supplier-purchase-dlq.fifo"
+      dlq_message_retention_seconds = 604800
+      max_receive_count             = 3
     }
     "supplier-rolling-price-aggregate-queue" = {
       visibility_timeout_seconds = 300
