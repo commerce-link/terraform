@@ -64,6 +64,11 @@ valkey_parameter_overrides      = {}
 # extra_app_environment = {
 #   APP_REGISTRATION_ENABLED = "true"
 # }
+# Behaviour analytics and the registration-form terms link (README section 5a).
+# Both are per-environment identity, so they live here and not in the application
+# properties: leaving them out of the tfvars removes the variables on the next apply.
+# gtm_container_id = "GTM-XXXXXXX"
+# terms_url        = "https://example.com/terms-and-conditions/"
 
 scheduler_schedules = {
   basket-cleanup = {

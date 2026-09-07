@@ -77,6 +77,12 @@ locals {
     var.captcha_secret_key == null ? {} : {
       APP_REGISTRATION_CAPTCHA_SECRET_KEY = var.captcha_secret_key
     },
+    var.gtm_container_id == null ? {} : {
+      APP_GTM_CONTAINER_ID = var.gtm_container_id
+    },
+    var.terms_url == null ? {} : {
+      APP_TERMS_URL = var.terms_url
+    },
     var.extra_app_environment
   )
 
