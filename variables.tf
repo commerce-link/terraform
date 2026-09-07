@@ -198,6 +198,23 @@ variable "captcha_secret_key" {
   sensitive   = true
 }
 
+variable "gtm_container_id" {
+  description = "Google Tag Manager container id (e.g. \"GTM-XXXXXXX\") loaded on every application page; behaviour analytics such as Microsoft Clarity are configured inside the container. Null renders no GTM snippet."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.gtm_container_id == null || can(regex("^GTM-[A-Z0-9]+$", var.gtm_container_id))
+    error_message = "gtm_container_id must look like GTM-XXXXXXX."
+  }
+}
+
+variable "terms_url" {
+  description = "Public URL of the terms and conditions linked from the registration form. Null hides the link."
+  type        = string
+  default     = null
+}
+
 variable "enable_api_gateway" {
   description = "Whether to create API Gateway REST API resources."
   type        = bool

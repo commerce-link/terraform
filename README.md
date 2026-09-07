@@ -213,6 +213,24 @@ Verification is done server side and a failed call to Cloudflare rejects the
 submission, so an outage at Cloudflare stops new registrations rather than
 letting bots through.
 
+**Behaviour analytics and terms link.** The application loads Google Tag
+Manager on every page when a container id is configured; Microsoft Clarity (or
+any other tag) is set up inside that container, not in the application. The
+registration form links to the terms and conditions when a URL is configured.
+Both values identify one deployment, so they are Terraform variables rather
+than entries in the `demo` Spring profile, which is also used by forks and
+local builds:
+
+```hcl
+gtm_container_id = "GTM-XXXXXXX"
+terms_url        = "https://example.com/terms-and-conditions/"
+```
+
+They become `APP_GTM_CONTAINER_ID` and `APP_TERMS_URL` on the Beanstalk
+environment and take effect after the environment restarts, without a new
+application build. An apply from a tfvars file that lacks them removes the
+variables again, and `terraform plan` shows that removal explicitly.
+
 ## 5b. Seed Data for Dev/Demo Environments (optional)
 
 The application does not seed S3 data outside local development (the
