@@ -111,6 +111,14 @@ scheduler_schedules = {
     schedule_expression  = "rate(10 minutes)"
     input                = "{\"marketplace\":\"Allegro\"}"
   }
+
+  # Periodic marketplace customer-returns import. Its own queue and listener, so a slow returns poll
+  # never delays the order import and the two can be tuned independently.
+  allegro-returns-import = {
+    queue_name          = "marketplace-returns-import-queue"
+    schedule_expression = "rate(30 minutes)"
+    input               = "{\"marketplace\":\"Allegro\"}"
+  }
 }
 
 tags = {
