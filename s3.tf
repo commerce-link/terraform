@@ -36,3 +36,38 @@ resource "aws_s3_bucket_versioning" "app" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "marketplace_export_runs" {
+  bucket     = aws_s3_bucket.app["stores"].id
+  depends_on = [aws_s3_bucket_versioning.app]
+
+  rule {
+    id     = "marketplace-export-runs-expiration"
+    status = "Enabled"
+
+    filter {
+      prefix = "marketplace-export-runs/"
+    }
+
+    expiration {
+      days = var.marketplace_export_history_retention_days
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.marketplace_export_history_retention_days
+    }
+  }
+
+  rule {
+    id     = "marketplace-export-runs-delete-markers"
+    status = "Enabled"
+
+    filter {
+      prefix = "marketplace-export-runs/"
+    }
+
+    expiration {
+      expired_object_delete_marker = true
+    }
+  }
+}
