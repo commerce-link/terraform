@@ -100,7 +100,7 @@ locals {
       message_retention_seconds  = 7200
     }
     "marketplace-order-lifecycle-queue" = {
-      visibility_timeout_seconds    = 300
+      visibility_timeout_seconds    = 30
       message_retention_seconds     = 345600
       dlq_name                      = "marketplace-order-lifecycle-dlq"
       dlq_message_retention_seconds = 604800
@@ -109,6 +109,17 @@ locals {
     "marketplace-orders-import-queue" = {
       visibility_timeout_seconds = 300
       message_retention_seconds  = 3600
+    }
+    "marketplace-returns-import-queue" = {
+      visibility_timeout_seconds = 300
+      message_retention_seconds  = 3600
+    }
+    "marketplace-return-lifecycle-queue" = {
+      visibility_timeout_seconds    = 300
+      message_retention_seconds     = 345600
+      dlq_name                      = "marketplace-return-lifecycle-dlq"
+      dlq_message_retention_seconds = 604800
+      max_receive_count             = 3
     }
     "order-fulfilment-queue.fifo" = {
       fifo_queue                 = true

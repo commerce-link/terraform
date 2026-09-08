@@ -112,13 +112,12 @@ scheduler_schedules = {
     input                = "{\"marketplace\":\"Allegro\"}"
   }
 
-  # Periodic marketplace customer-returns import. Same queue and listener as order import;
-  # "scope":"returns" makes the listener call MarketplaceProvider.returns() instead of fetchOrders().
-  # Marketplaces without a returns API ignore the message.
+  # Periodic marketplace customer-returns import. Its own queue and listener, so a slow returns poll
+  # never delays the order import and the two can be tuned independently.
   allegro-returns-import = {
-    queue_name           = "marketplace-orders-import-queue"
-    schedule_expression  = "rate(30 minutes)"
-    input                = "{\"marketplace\":\"Allegro\",\"scope\":\"returns\"}"
+    queue_name          = "marketplace-returns-import-queue"
+    schedule_expression = "rate(30 minutes)"
+    input               = "{\"marketplace\":\"Allegro\"}"
   }
 }
 
