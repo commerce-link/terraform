@@ -112,6 +112,24 @@ resource "aws_elastic_beanstalk_environment" "app" {
     value     = "Rolling"
   }
 
+  setting {
+    namespace = "aws:elasticbeanstalk:cloudwatch:logs"
+    name      = "StreamLogs"
+    value     = "true"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:cloudwatch:logs"
+    name      = "RetentionInDays"
+    value     = "7"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:cloudwatch:logs"
+    name      = "DeleteOnTerminate"
+    value     = "false"
+  }
+
   dynamic "setting" {
     for_each = (var.acm_certificate_arn != null || var.create_acm_certificate) ? {
       ListenerEnabled    = "true"
