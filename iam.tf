@@ -50,6 +50,11 @@ resource "aws_iam_role_policy_attachment" "app_beanstalk_web_tier" {
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
 
+resource "aws_iam_role_policy_attachment" "app_cloudwatch_agent" {
+  role       = aws_iam_role.app.name
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 data "aws_iam_policy_document" "app_dynamodb" {
   statement {
     sid = "DynamoDbAppTables"
