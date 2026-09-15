@@ -42,6 +42,7 @@ locals {
       VALKEY_ENDPOINT_PARAMETER_NAME  = aws_ssm_parameter.valkey_endpoint.name
       VALKEY_AUTH_SECRET_NAME         = aws_secretsmanager_secret.valkey_auth_token.name
       SQS_FEED_IMPORT_QUEUE_ARN       = aws_sqs_queue.app["supplier-feed-import-queue"].arn
+      SQS_ORDERS_IMPORT_QUEUE_ARN     = aws_sqs_queue.app["marketplace-orders-import-queue"].arn
     },
     var.app_domain == null ? {} : {
       APP_DOMAIN = "https://${var.app_domain}"
