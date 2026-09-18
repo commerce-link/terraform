@@ -91,37 +91,51 @@ locals {
   sqs_queues = {
     "basket-cleanup-queue" = {
       visibility_timeout_seconds = 30
-      message_retention_seconds  = 345600
+      message_retention_seconds  = 86400
     }
     "catalog-pricelist-queue" = {
-      visibility_timeout_seconds = 300
-      message_retention_seconds  = 3600
+      visibility_timeout_seconds     = 300
+      message_retention_seconds      = 3600
+      dlq_visibility_timeout_seconds = 300
     }
     "marketplace-offer-export-queue" = {
-      visibility_timeout_seconds = 300
-      message_retention_seconds  = 7200
+      visibility_timeout_seconds     = 300
+      message_retention_seconds      = 7200
+      dlq_visibility_timeout_seconds = 300
+      delay_seconds                  = 60
     }
     "marketplace-order-lifecycle-queue" = {
-      visibility_timeout_seconds    = 30
-      message_retention_seconds     = 345600
-      dlq_name                      = "marketplace-order-lifecycle-dlq"
-      dlq_message_retention_seconds = 604800
-      max_receive_count             = 3
+      visibility_timeout_seconds     = 120
+      message_retention_seconds      = 259200
+      dlq_name                       = "marketplace-order-lifecycle-dlq"
+      dlq_message_retention_seconds  = 604800
+      max_receive_count              = 3
+      dlq_visibility_timeout_seconds = 60
+      delay_seconds                  = 5
+      dlq_max_message_size           = 1048576
     }
     "marketplace-orders-import-queue" = {
-      visibility_timeout_seconds = 300
-      message_retention_seconds  = 3600
+      visibility_timeout_seconds    = 300
+      message_retention_seconds     = 3600
+      dlq_max_message_size          = 1048576
+      dlq_message_retention_seconds = 345600
+      max_receive_count             = 1
     }
     "marketplace-returns-import-queue" = {
-      visibility_timeout_seconds = 300
-      message_retention_seconds  = 3600
+      visibility_timeout_seconds    = 300
+      message_retention_seconds     = 3600
+      dlq_max_message_size          = 1048576
+      dlq_message_retention_seconds = 345600
+      max_receive_count             = 1
     }
     "marketplace-return-lifecycle-queue" = {
-      visibility_timeout_seconds    = 300
-      message_retention_seconds     = 345600
-      dlq_name                      = "marketplace-return-lifecycle-dlq"
-      dlq_message_retention_seconds = 604800
-      max_receive_count             = 3
+      visibility_timeout_seconds     = 300
+      message_retention_seconds      = 345600
+      dlq_name                       = "marketplace-return-lifecycle-dlq"
+      dlq_message_retention_seconds  = 604800
+      max_receive_count              = 3
+      dlq_max_message_size           = 1048576
+      dlq_visibility_timeout_seconds = 60
     }
     "order-fulfilment-queue.fifo" = {
       fifo_queue                 = true
@@ -129,19 +143,25 @@ locals {
       message_retention_seconds  = 345600
     }
     "order-goods-out-queue.fifo" = {
-      fifo_queue                 = true
-      visibility_timeout_seconds = 30
-      message_retention_seconds  = 345600
-      dlq_name                   = "order-goods-out-dlq.fifo"
-      max_receive_count          = 1
-    }
-    "order-invoicing-queue.fifo" = {
       fifo_queue                    = true
       visibility_timeout_seconds    = 30
       message_retention_seconds     = 345600
-      dlq_name                      = "order-invoicing-dlq.fifo"
-      dlq_message_retention_seconds = 604800
+      dlq_name                      = "order-goods-out-dlq.fifo"
       max_receive_count             = 1
+      dlq_max_message_size          = 1048576
+      dlq_message_retention_seconds = 345600
+      delay_seconds                 = 1
+    }
+    "order-invoicing-queue.fifo" = {
+      fifo_queue                      = true
+      visibility_timeout_seconds      = 30
+      message_retention_seconds       = 28800
+      dlq_name                        = "order-invoicing-dlq.fifo"
+      dlq_message_retention_seconds   = 604800
+      max_receive_count               = 1
+      content_based_deduplication     = false
+      dlq_content_based_deduplication = true
+      dlq_max_message_size            = 1048576
     }
     "order-lifecycle-queue" = {
       visibility_timeout_seconds = 30
@@ -150,52 +170,62 @@ locals {
     "order-notifications-queue" = {
       visibility_timeout_seconds = 30
       message_retention_seconds  = 345600
+      message_retention_seconds  = 86400
     }
     "product-cleanup-queue" = {
-      visibility_timeout_seconds = 120
-      message_retention_seconds  = 43200
+      visibility_timeout_seconds     = 120
+      message_retention_seconds      = 43200
+      dlq_visibility_timeout_seconds = 120
     }
     "product-pim-request-queue" = {
-      visibility_timeout_seconds = 30
+      visibility_timeout_seconds = 300
       message_retention_seconds  = 345600
+      message_retention_seconds  = 2700
     }
     "rma-lifecycle-queue" = {
       visibility_timeout_seconds = 30
       message_retention_seconds  = 345600
     }
     "supplier-daily-price-snapshot-queue" = {
-      visibility_timeout_seconds = 300
-      message_retention_seconds  = 43200
+      visibility_timeout_seconds     = 300
+      message_retention_seconds      = 43200
+      dlq_visibility_timeout_seconds = 300
     }
     "supplier-dropship-tracking-sweep-queue" = {
       visibility_timeout_seconds    = 300
       message_retention_seconds     = 345600
       dlq_message_retention_seconds = 1209600
       max_receive_count             = 1
+      dlq_max_message_size          = 1048576
     }
     "supplier-feed-import-queue" = {
-      visibility_timeout_seconds    = 30
-      message_retention_seconds     = 43200
-      dlq_message_retention_seconds = 604800
-      max_receive_count             = 5
+      message_retention_seconds      = 43200
+      dlq_message_retention_seconds  = 604800
+      max_receive_count              = 3
+      visibility_timeout_seconds     = 30
+      dlq_max_message_size           = 1048576
+      dlq_visibility_timeout_seconds = 1800
     }
     "supplier-order-refresh-queue" = {
       visibility_timeout_seconds    = 900
       message_retention_seconds     = 345600
       dlq_message_retention_seconds = 1209600
       max_receive_count             = 6
+      dlq_max_message_size          = 1048576
     }
     "supplier-order-tracking-queue" = {
       visibility_timeout_seconds    = 120
       message_retention_seconds     = 345600
       dlq_message_retention_seconds = 1209600
       max_receive_count             = 3
+      dlq_max_message_size          = 1048576
     }
     "shipment-tracking-queue" = {
       visibility_timeout_seconds    = 120
       message_retention_seconds     = 345600
       dlq_message_retention_seconds = 1209600
       max_receive_count             = 5
+      dlq_max_message_size          = 1048576
     }
     "supplier-purchase-queue.fifo" = {
       fifo_queue                    = true
@@ -203,16 +233,18 @@ locals {
       message_retention_seconds     = 345600
       dlq_name                      = "supplier-purchase-dlq.fifo"
       dlq_message_retention_seconds = 604800
-      max_receive_count             = 3
+      max_receive_count             = 1
+      dlq_max_message_size          = 1048576
     }
     "supplier-rolling-price-aggregate-queue" = {
-      visibility_timeout_seconds = 300
-      message_retention_seconds  = 43200
+      visibility_timeout_seconds     = 300
+      message_retention_seconds      = 43200
+      dlq_visibility_timeout_seconds = 300
     }
     "supplier-taxonomy-queue" = {
-      visibility_timeout_seconds = 300
-      message_retention_seconds  = 43200
+      visibility_timeout_seconds     = 300
+      message_retention_seconds      = 43200
+      dlq_visibility_timeout_seconds = 300
     }
   }
-
 }
