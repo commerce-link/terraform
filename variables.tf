@@ -42,7 +42,7 @@ variable "az_count" {
 variable "beanstalk_solution_stack_name" {
   description = "Elastic Beanstalk solution stack for the Java application."
   type        = string
-  default     = "64bit Amazon Linux 2023 v4.12.2 running Corretto 21"
+  default     = "64bit Amazon Linux 2023 v4.12.8 running Corretto 21"
 }
 
 variable "beanstalk_instance_type" {
@@ -129,6 +129,72 @@ variable "cognito_domain_prefix" {
   default     = null
 }
 
+variable "cognito_domain_name_override" {
+  description = "Override for Cognito user pool domain name."
+  type        = string
+  default     = null
+}
+
+variable "cognito_mfa_configuration" {
+  description = "Cognito MFA configuration (OFF, ON, OPTIONAL)."
+  type        = string
+  default     = "OFF"
+}
+
+variable "cognito_user_pool_name" {
+  description = "Override for Cognito user pool name."
+  type        = string
+  default     = null
+}
+
+variable "cognito_user_pool_client_name" {
+  description = "Override for Cognito user pool client name."
+  type        = string
+  default     = null
+}
+
+variable "api_gateway_api_key_required" {
+  description = "Whether API Gateway requires API key."
+  type        = bool
+  default     = false
+}
+
+variable "api_gateway_catalog_id_header" {
+  description = "Static API_GATEWAY_ID header value forwarded by the catalog proxy integration. Null omits the header."
+  type        = string
+  default     = null
+}
+
+variable "api_gateway_rest_api_name" {
+  description = "Override for API Gateway REST API name."
+  type        = string
+  default     = null
+}
+
+variable "security_group_name_alb" {
+  description = "Override for ALB security group name."
+  type        = string
+  default     = null
+}
+
+variable "security_group_name_app" {
+  description = "Override for app security group name."
+  type        = string
+  default     = null
+}
+
+variable "security_group_name_valkey" {
+  description = "Override for Valkey security group name."
+  type        = string
+  default     = null
+}
+
+variable "public_subnet_cidrs" {
+  description = "Override list of CIDR blocks for public subnets."
+  type        = list(string)
+  default     = null
+}
+
 variable "cognito_ses_source_arn" {
   description = "Optional SES identity ARN used by Cognito to send emails (DEVELOPER sending account). Null keeps the COGNITO_DEFAULT sender (~50 emails/day)."
   type        = string
@@ -182,7 +248,7 @@ variable "cognito_resource_server_identifier" {
 variable "cognito_allowed_oauth_scopes" {
   description = "OAuth scopes for the Cognito app client."
   type        = list(string)
-  default     = ["aws.cognito.signin.user.admin", "email", "openid", "profile"]
+  default     = ["aws.cognito.signin.user.admin", "email", "openid", "profile", "commercelink-storeId/custom:storeId"]
 }
 
 variable "captcha_site_key" {
@@ -335,11 +401,14 @@ variable "force_destroy_buckets" {
 variable "scheduler_schedules" {
   description = "EventBridge Scheduler definitions targeting app SQS queues."
   type = map(object({
-    queue_name          = string
-    schedule_expression = string
-    timezone            = optional(string, "Europe/Warsaw")
-    input               = optional(string)
-    enabled             = optional(bool, true)
+    queue_name                            = string
+    schedule_expression                   = string
+    timezone                              = optional(string, "Poland")
+    input                                 = optional(string)
+    enabled                               = optional(bool, true)
+    time_window_mode                      = optional(string, "OFF")
+    time_window_maximum_window_in_minutes = optional(number, null)
+    description                           = optional(string, null)
   }))
   default = {}
 }
@@ -348,4 +417,111 @@ variable "extra_app_environment" {
   description = "Additional Elastic Beanstalk application environment variables."
   type        = map(string)
   default     = {}
+}
+variable "beanstalk_app_name" {
+  description = "Elastic Beanstalk application name override."
+  type        = string
+  default     = null
+}
+
+variable "beanstalk_environment_name" {
+  description = "Elastic Beanstalk environment name override."
+  type        = string
+  default     = null
+}
+
+variable "elasticache_replication_group_id" {
+  description = "ElastiCache replication group ID override."
+  type        = string
+  default     = null
+}
+
+variable "elasticache_subnet_group_name" {
+  description = "ElastiCache subnet group name override."
+  type        = string
+  default     = null
+}
+
+variable "elasticache_parameter_group_name" {
+  description = "ElastiCache parameter group name override."
+  type        = string
+  default     = null
+}
+
+variable "s3_bucket_name_overrides" {
+  description = "S3 bucket name overrides map."
+  type        = map(string)
+  default     = {}
+}
+
+variable "sqs_dlq_name_overrides" {
+  description = "SQS DLQ name overrides map."
+  type        = map(string)
+  default     = {}
+}
+
+variable "scheduler_schedule_name_overrides" {
+  description = "Scheduler schedule name overrides map."
+  type        = map(string)
+  default     = {}
+}
+
+variable "app_iam_role_name" {
+  description = "IAM role name override."
+  type        = string
+  default     = null
+}
+
+variable "app_dynamodb_policy_name" {
+  description = "IAM policy name for DynamoDB access override."
+  type        = string
+  default     = null
+}
+
+variable "scheduler_role_name" {
+  description = "Scheduler IAM role name override."
+  type        = string
+  default     = null
+}
+
+variable "scheduler_policy_name" {
+  description = "Scheduler IAM policy name override."
+  type        = string
+  default     = null
+}
+
+variable "beanstalk_service_role_name" {
+  description = "Elastic Beanstalk service role name override."
+  type        = string
+  default     = null
+}
+
+variable "beanstalk_service_role_path" {
+  description = "Elastic Beanstalk service role path override."
+  type        = string
+  default     = null
+}
+
+variable "schedule_group_name" {
+  description = "EventBridge Scheduler group name override."
+  type        = string
+  default     = null
+}
+
+variable "enabled_api_gateway_deployment" {
+  description = "Whether to enable API Gateway deployment."
+  type        = bool
+  default     = true
+}
+
+variable "api_gateway_deployment_id" {
+  description = "API Gateway deployment ID."
+  type        = string
+  default     = null
+}
+
+variable "cognito_generate_secret" {
+  description = "Whether to generate Cognito app client secret."
+  type        = bool
+  default     = true
 }

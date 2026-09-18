@@ -7,6 +7,10 @@ resource "aws_route53_zone" "this" {
   tags = {
     Name = var.route53_zone_name
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_acm_certificate" "this" {

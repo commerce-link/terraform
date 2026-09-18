@@ -1,10 +1,17 @@
 resource "aws_elastic_beanstalk_application" "app" {
-  name        = "${local.name_prefix}-app"
+  name        = coalesce(var.beanstalk_app_name, "${local.name_prefix}-app")
   description = "CommerceLink application"
+
+  appversion_lifecycle {
+    delete_source_from_s3 = true
+    max_age_in_days       = 0
+    max_count             = 50
+    service_role          = "arn:aws:iam::975324243881:role/service-role/aws-elasticbeanstalk-service-role"
+  }
 }
 
 resource "aws_elastic_beanstalk_environment" "app" {
-  name                = "${local.name_prefix}-app"
+  name                = coalesce(var.beanstalk_environment_name, "${local.name_prefix}-app")
   application         = aws_elastic_beanstalk_application.app.name
   solution_stack_name = var.beanstalk_solution_stack_name
   cname_prefix        = var.beanstalk_cname_prefix

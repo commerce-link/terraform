@@ -21,7 +21,7 @@ resource "aws_subnet" "public" {
 
   vpc_id                  = aws_vpc.this.id
   availability_zone       = local.az_names[count.index]
-  cidr_block              = cidrsubnet(var.vpc_cidr, 4, count.index)
+  cidr_block              = try(var.public_subnet_cidrs[count.index], cidrsubnet(var.vpc_cidr, 4, count.index))
   map_public_ip_on_launch = true
 
   tags = {
@@ -125,12 +125,11 @@ resource "aws_vpc_endpoint" "dynamodb" {
 }
 
 resource "aws_security_group" "alb" {
-  name        = "${local.name_prefix}-alb"
+  name        = coalesce(var.security_group_name_alb, "${local.name_prefix}-alb")
   description = "CommerceLink public ALB"
   vpc_id      = aws_vpc.this.id
 
   ingress {
-    description = "HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -138,39 +137,48 @@ resource "aws_security_group" "alb" {
   }
 
   ingress {
-    description = "HTTPS"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  lifecycle {
+    ignore_changes = [description]
+  }
 }
 
 resource "aws_security_group" "app" {
-  name        = "${local.name_prefix}-app"
+  name        = coalesce(var.security_group_name_app, "${local.name_prefix}-app")
   description = "CommerceLink Beanstalk instances"
   vpc_id      = aws_vpc.this.id
 
   egress {
-    description = "Outbound"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  lifecycle {
+    ignore_changes = [description]
+  }
 }
 
 resource "aws_security_group" "valkey" {
-  name        = "${local.name_prefix}-valkey"
+  name        = coalesce(var.security_group_name_valkey, "${local.name_prefix}-valkey")
   description = "CommerceLink Valkey cache"
   vpc_id      = aws_vpc.this.id
 
   egress {
-    description = "Outbound"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  lifecycle {
+    ignore_changes = [description]
   }
 }
 
