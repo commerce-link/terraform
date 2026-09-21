@@ -24,8 +24,11 @@ resource "aws_cognito_user_pool" "app" {
     device_only_remembered_on_user_prompt = true
   }
 
-  software_token_mfa_configuration {
-    enabled = true
+  dynamic "software_token_mfa_configuration" {
+    for_each = var.cognito_mfa_configuration == "OFF" ? [] : [1]
+    content {
+      enabled = true
+    }
   }
 
   email_configuration {
@@ -49,10 +52,7 @@ resource "aws_cognito_user_pool" "app" {
     mutable             = true
     required            = false
 
-    string_attribute_constraints {
-      # min_length = 0
-      # max_length = 2048
-    }
+    string_attribute_constraints {}
   }
 
   schema {
@@ -61,10 +61,11 @@ resource "aws_cognito_user_pool" "app" {
     mutable             = true
     required            = false
 
-    string_attribute_constraints {
-      # min_length = 0
-      # max_length = 2048
-    }
+    string_attribute_constraints {}
+  }
+
+  lifecycle {
+    ignore_changes = [schema]
   }
 }
 
@@ -76,8 +77,8 @@ resource "aws_cognito_resource_server" "app" {
   user_pool_id = aws_cognito_user_pool.app.id
 
   scope {
-    scope_name        = "storeId"
-    scope_description = "CommerceLink store identifier"
+    scope_name        = "custom:storeId"
+    scope_description = "StoreID"
   }
 }
 
@@ -100,6 +101,10 @@ resource "aws_cognito_user_pool_client" "app" {
     "ALLOW_USER_SRP_AUTH",
     "ALLOW_USER_AUTH"
   ]
+
+  access_token_validity  = 480
+  id_token_validity      = 480
+  refresh_token_validity = 5
 
   token_validity_units {
     access_token  = "minutes"

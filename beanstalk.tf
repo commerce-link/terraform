@@ -6,7 +6,7 @@ resource "aws_elastic_beanstalk_application" "app" {
     delete_source_from_s3 = true
     max_age_in_days       = 0
     max_count             = 50
-    service_role          = "arn:aws:iam::975324243881:role/service-role/aws-elasticbeanstalk-service-role"
+    service_role          = aws_iam_role.beanstalk_service.arn
   }
 }
 
