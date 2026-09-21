@@ -100,9 +100,51 @@ variable "route53_zone_force_destroy" {
 }
 
 variable "acm_certificate_arn" {
-  description = "Optional existing ACM certificate ARN for HTTPS on the Beanstalk ALB and API Gateway custom domain."
+  description = "Optional existing ACM certificate ARN for API Gateway custom domain and, when beanstalk_ssl_certificate_arn is unset, the Beanstalk ALB HTTPS listener."
   type        = string
   default     = null
+}
+
+variable "beanstalk_ssl_certificate_arn" {
+  description = "Optional ACM certificate ARN for the Beanstalk ALB HTTPS listener. Defaults to acm_certificate_arn when unset, so an existing environment can keep a different cert than API Gateway."
+  type        = string
+  default     = null
+}
+
+variable "beanstalk_log_retention_in_days" {
+  description = "CloudWatch log retention in days for Elastic Beanstalk instance logs."
+  type        = number
+  default     = 7
+}
+
+variable "beanstalk_managed_security_group" {
+  description = "Whether to set aws:elbv2:loadbalancer/ManagedSecurityGroup to the ALB security group. Disable when adopting an environment that never had this option."
+  type        = bool
+  default     = true
+}
+
+variable "beanstalk_assign_security_groups" {
+  description = "Whether to set instance and ALB SecurityGroups on the Beanstalk environment. Disable when adopting an environment whose DescribeConfigurationSettings returns those options empty; the groups stay attached outside this setting."
+  type        = bool
+  default     = true
+}
+
+variable "beanstalk_instance_subnet_indexes" {
+  description = "Optional permutation of private subnet indexes for aws:ec2:vpc/Subnets. Null sorts subnet IDs, which matches how the AWS provider refreshes this option."
+  type        = list(number)
+  default     = null
+}
+
+variable "beanstalk_elb_subnet_indexes" {
+  description = "Optional permutation of public subnet indexes for aws:ec2:vpc/ELBSubnets. Null sorts subnet IDs, which matches how the AWS provider refreshes this option."
+  type        = list(number)
+  default     = null
+}
+
+variable "use_generated_app_environment" {
+  description = "When true, push local.app_environment to Beanstalk. When false, push only extra_app_environment, for adopting an existing environment without adding generated variables."
+  type        = bool
+  default     = true
 }
 
 variable "create_acm_certificate" {
@@ -157,6 +199,12 @@ variable "api_gateway_api_key_required" {
   description = "Whether API Gateway requires API key."
   type        = bool
   default     = false
+}
+
+variable "api_gateway_api_key_id" {
+  description = "Optional existing API Gateway API key ID. Terraform reads the key value from AWS and sets AWS_API_GATEWAY_KEY on Beanstalk, so the secret does not live in Terraform files."
+  type        = string
+  default     = null
 }
 
 variable "api_gateway_catalog_id_header" {

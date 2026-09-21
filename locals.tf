@@ -13,6 +13,27 @@ locals {
     ? var.acm_certificate_arn
     : try(aws_acm_certificate_validation.this[0].certificate_arn, null)
   )
+  beanstalk_ssl_certificate_arn = (
+    var.beanstalk_ssl_certificate_arn != null
+    ? var.beanstalk_ssl_certificate_arn
+    : local.acm_certificate_arn
+  )
+  beanstalk_instance_subnets = join(",", (
+    var.beanstalk_instance_subnet_indexes != null
+    ? [for i in var.beanstalk_instance_subnet_indexes : aws_subnet.private[i].id]
+    : sort(aws_subnet.private[*].id)
+  ))
+  beanstalk_elb_subnets = join(",", (
+    var.beanstalk_elb_subnet_indexes != null
+    ? [for i in var.beanstalk_elb_subnet_indexes : aws_subnet.public[i].id]
+    : sort(aws_subnet.public[*].id)
+  ))
+  beanstalk_app_environment = merge(
+    var.use_generated_app_environment ? local.app_environment : var.extra_app_environment,
+    var.api_gateway_api_key_id == null ? {} : {
+      AWS_API_GATEWAY_KEY = data.aws_api_gateway_api_key.app[0].value
+    }
+  )
 
   tags = merge(
     {

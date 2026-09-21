@@ -1,3 +1,9 @@
+data "aws_api_gateway_api_key" "app" {
+  count = var.api_gateway_api_key_id == null ? 0 : 1
+
+  id = var.api_gateway_api_key_id
+}
+
 resource "aws_api_gateway_rest_api" "app" {
   count = var.enable_api_gateway ? 1 : 0
 
