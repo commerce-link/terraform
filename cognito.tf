@@ -1,6 +1,7 @@
 resource "aws_cognito_user_pool" "app" {
-  name                = "${local.name_prefix}-app"
+  name                = coalesce(var.cognito_user_pool_name, "${local.name_prefix}-app")
   deletion_protection = "ACTIVE"
+  mfa_configuration   = var.cognito_mfa_configuration
 
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
@@ -15,6 +16,18 @@ resource "aws_cognito_user_pool" "app" {
         email_message = var.cognito_invite_email_message
         sms_message   = var.cognito_invite_sms_message
       }
+    }
+  }
+
+  device_configuration {
+    challenge_required_on_new_device      = true
+    device_only_remembered_on_user_prompt = true
+  }
+
+  dynamic "software_token_mfa_configuration" {
+    for_each = var.cognito_mfa_configuration == "OFF" ? [] : [1]
+    content {
+      enabled = true
     }
   }
 
@@ -39,10 +52,7 @@ resource "aws_cognito_user_pool" "app" {
     mutable             = true
     required            = false
 
-    string_attribute_constraints {
-      min_length = 0
-      max_length = 2048
-    }
+    string_attribute_constraints {}
   }
 
   schema {
@@ -51,10 +61,11 @@ resource "aws_cognito_user_pool" "app" {
     mutable             = true
     required            = false
 
-    string_attribute_constraints {
-      min_length = 0
-      max_length = 2048
-    }
+    string_attribute_constraints {}
+  }
+
+  lifecycle {
+    ignore_changes = [schema]
   }
 }
 
@@ -66,16 +77,16 @@ resource "aws_cognito_resource_server" "app" {
   user_pool_id = aws_cognito_user_pool.app.id
 
   scope {
-    scope_name        = "storeId"
-    scope_description = "CommerceLink store identifier"
+    scope_name        = "custom:storeId"
+    scope_description = "StoreID"
   }
 }
 
 resource "aws_cognito_user_pool_client" "app" {
-  name         = "${local.name_prefix}-client"
+  name         = coalesce(var.cognito_user_pool_client_name, "${local.name_prefix}-client")
   user_pool_id = aws_cognito_user_pool.app.id
 
-  generate_secret                      = true
+  generate_secret                      = var.cognito_generate_secret ? true : null
   prevent_user_existence_errors        = "ENABLED"
   supported_identity_providers         = ["COGNITO"]
   allowed_oauth_flows_user_pool_client = true
@@ -88,7 +99,18 @@ resource "aws_cognito_user_pool_client" "app" {
     "ALLOW_ADMIN_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH",
     "ALLOW_USER_SRP_AUTH",
+    "ALLOW_USER_AUTH"
   ]
+
+  access_token_validity  = 480
+  id_token_validity      = 480
+  refresh_token_validity = 5
+
+  token_validity_units {
+    access_token  = "minutes"
+    id_token      = "minutes"
+    refresh_token = "days"
+  }
 
   depends_on = [aws_cognito_resource_server.app]
 }
@@ -96,6 +118,6 @@ resource "aws_cognito_user_pool_client" "app" {
 resource "aws_cognito_user_pool_domain" "app" {
   count = var.cognito_domain_prefix == null ? 0 : 1
 
-  domain       = var.cognito_domain_prefix
+  domain       = coalesce(var.cognito_domain_name_override, var.cognito_domain_prefix)
   user_pool_id = aws_cognito_user_pool.app.id
 }

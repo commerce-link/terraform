@@ -10,8 +10,9 @@ data "aws_iam_policy_document" "beanstalk_service_assume_role" {
 }
 
 resource "aws_iam_role" "beanstalk_service" {
-  name               = "${local.name_prefix}-beanstalk-service"
+  name               = coalesce(var.beanstalk_service_role_name, "${local.name_prefix}-beanstalk-service")
   assume_role_policy = data.aws_iam_policy_document.beanstalk_service_assume_role.json
+  path               = coalesce(var.beanstalk_service_role_path, "/")
 }
 
 resource "aws_iam_role_policy_attachment" "beanstalk_enhanced_health" {
@@ -36,12 +37,12 @@ data "aws_iam_policy_document" "app_assume_role" {
 }
 
 resource "aws_iam_role" "app" {
-  name               = "${local.name_prefix}-app"
+  name               = coalesce(var.app_iam_role_name, "${local.name_prefix}-app")
   assume_role_policy = data.aws_iam_policy_document.app_assume_role.json
 }
 
 resource "aws_iam_instance_profile" "app" {
-  name = "${local.name_prefix}-app"
+  name = coalesce(var.app_iam_role_name, "${local.name_prefix}-app")
   role = aws_iam_role.app.name
 }
 
@@ -204,7 +205,7 @@ resource "aws_iam_policy" "app" {
 }
 
 resource "aws_iam_policy" "app_dynamodb" {
-  name   = "${local.name_prefix}-app-dynamodb"
+  name   = coalesce(var.app_dynamodb_policy_name, "${local.name_prefix}-app-dynamodb")
   policy = data.aws_iam_policy_document.app_dynamodb.json
 }
 
@@ -231,6 +232,11 @@ resource "aws_iam_role_policy_attachment" "app_scheduler_pass_role" {
 data "aws_iam_policy_document" "scheduler_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
 
     principals {
       type        = "Service"
@@ -240,19 +246,19 @@ data "aws_iam_policy_document" "scheduler_assume_role" {
 }
 
 resource "aws_iam_role" "scheduler" {
-  name               = "${local.name_prefix}-scheduler"
+  name               = coalesce(var.scheduler_role_name, "${local.name_prefix}-scheduler")
   assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
 }
 
 data "aws_iam_policy_document" "scheduler" {
   statement {
     actions   = ["sqs:SendMessage"]
-    resources = [for queue in aws_sqs_queue.app : queue.arn]
+    resources = ["arn:aws:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*"]
   }
 }
 
 resource "aws_iam_policy" "scheduler" {
-  name   = "${local.name_prefix}-scheduler"
+  name   = coalesce(var.scheduler_policy_name, "${local.name_prefix}-scheduler")
   policy = data.aws_iam_policy_document.scheduler.json
 }
 

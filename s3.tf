@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "app" {
   for_each = local.app_buckets
 
-  bucket        = "${local.name_prefix}-${each.key}-${data.aws_caller_identity.current.account_id}"
+  bucket        = try(var.s3_bucket_name_overrides[each.key], "${local.name_prefix}-${each.key}-${data.aws_caller_identity.current.account_id}")
   force_destroy = var.force_destroy_buckets
 }
 
@@ -34,5 +34,9 @@ resource "aws_s3_bucket_versioning" "app" {
 
   versioning_configuration {
     status = "Enabled"
+  }
+
+  lifecycle {
+    ignore_changes = [versioning_configuration[0].status]
   }
 }

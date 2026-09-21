@@ -16,6 +16,10 @@ resource "random_password" "valkey_auth_token" {
   min_special      = 1
   min_upper        = 1
   override_special = "!&#$^<>-"
+
+  lifecycle {
+    ignore_changes = [min_lower, min_numeric, min_special, min_upper, override_special]
+  }
 }
 
 resource "aws_secretsmanager_secret" "valkey_auth_token" {
