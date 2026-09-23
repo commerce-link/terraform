@@ -194,6 +194,10 @@ resource "aws_elastic_beanstalk_environment" "app" {
       resource  = ""
     }
   }
+
+  lifecycle {
+    ignore_changes = [version_label]
+  }
 }
 
 data "aws_lb_listener" "http" {
