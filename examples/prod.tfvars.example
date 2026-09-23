@@ -102,6 +102,12 @@ scheduler_schedules = {
     schedule_expression  = "cron(7 * * * ? *)"
     timezone             = "Europe/Warsaw"
   }
+
+  receipt-sweep = {
+    queue_name           = "receipt-sweep-queue"
+    schedule_expression  = "rate(1 minute)"
+    description          = "Wakes e-receipt attempts that are due (issue retries, status polling, link polling)"
+  }
 }
 
 tags = {
