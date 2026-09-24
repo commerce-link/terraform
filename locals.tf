@@ -119,6 +119,15 @@ locals {
       message_retention_seconds      = 3600
       dlq_visibility_timeout_seconds = 300
     }
+    # Hourly trigger for the expired demo store cleanup. A trigger nobody consumed within the hour is superseded
+    # by the next one, so it expires instead of queueing up while no demo-mode instance is running.
+    "demo-store-cleanup-queue" = {
+      visibility_timeout_seconds    = 900
+      message_retention_seconds     = 3600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 1
+      dlq_max_message_size          = 1048576
+    }
     "marketplace-offer-export-queue" = {
       visibility_timeout_seconds     = 300
       message_retention_seconds      = 7200
@@ -266,6 +275,15 @@ locals {
       visibility_timeout_seconds     = 300
       message_retention_seconds      = 43200
       dlq_visibility_timeout_seconds = 300
+    }
+    # Five-minute trigger for the category match sweep. Each sweep advances the bucket, so triggers kept while
+    # the app was down would replay as a burst of PIM submissions on startup; they expire after one interval.
+    "taxonomy-category-match-sweep-queue" = {
+      visibility_timeout_seconds    = 300
+      message_retention_seconds     = 300
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 1
+      dlq_max_message_size          = 1048576
     }
   }
 }
