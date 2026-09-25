@@ -65,11 +65,13 @@ data "aws_iam_policy_document" "app_dynamodb" {
       "dynamodb:ConditionCheckItem",
       "dynamodb:CreateTable",
       "dynamodb:DeleteItem",
+      "dynamodb:DescribeContinuousBackups",
       "dynamodb:DescribeTable",
       "dynamodb:GetItem",
       "dynamodb:PutItem",
       "dynamodb:Query",
       "dynamodb:Scan",
+      "dynamodb:UpdateContinuousBackups",
       "dynamodb:UpdateItem",
       "dynamodb:UpdateTable",
     ]

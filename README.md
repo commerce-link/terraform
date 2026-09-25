@@ -90,7 +90,36 @@ anything the marketplace refused, so a rejected offer is told apart from a
 published one.
 
 DynamoDB tables are not created by Terraform. They are created by the
-CommerceLink application and Mongock on first application startup.
+CommerceLink application and Mongock on first application startup. On every
+start the application also switches on point-in-time recovery and deletion
+protection for each of its tables (migration
+`V016_EnableTableRecoveryProtection`), which is why the application role holds
+`dynamodb:UpdateContinuousBackups` and `dynamodb:DescribeContinuousBackups`.
+Apply the IAM change before deploying an application version that carries the
+migration; until then the migration logs an error per table and the
+application starts without the protection.
+
+Deletion protection also blocks `aws dynamodb delete-table`. To drop a table on
+purpose, switch it off first:
+
+```bash
+aws dynamodb update-table --table-name <table> --no-deletion-protection-enabled
+```
+
+Restoring from point-in-time recovery always creates a new table. Restore to a
+temporary name and copy the needed items back, or delete the original (after
+switching off deletion protection) and restore under its own name. The restored
+table does not inherit point-in-time recovery, TTL or deletion protection; the
+next application start turns the first and last back on, TTL on
+`ClientVerifications` has to be re-enabled by hand:
+
+```bash
+aws dynamodb restore-table-to-point-in-time \
+  --source-table-name Orders --target-table-name Orders-restored \
+  --restore-date-time 2026-09-25T10:00:00Z
+aws dynamodb update-time-to-live --table-name ClientVerifications \
+  --time-to-live-specification Enabled=true,AttributeName=ttl
+```
 
 The Valkey cache is created in private subnets with TLS required, AUTH enabled,
 and at-rest encryption enabled. Terraform stores the generated AUTH token in
