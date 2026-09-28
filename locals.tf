@@ -193,6 +193,21 @@ locals {
       dlq_content_based_deduplication = true
       dlq_max_message_size            = 1048576
     }
+    "order-receipt-queue.fifo" = {
+      fifo_queue                    = true
+      content_based_deduplication   = false
+      visibility_timeout_seconds    = 600
+      message_retention_seconds     = 345600
+      dlq_name                      = "order-receipt-dlq.fifo"
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 3
+    }
+    "receipt-sweep-queue" = {
+      visibility_timeout_seconds    = 120
+      message_retention_seconds     = 3600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 1
+    }
     "order-lifecycle-queue" = {
       visibility_timeout_seconds = 30
       message_retention_seconds  = 345600
