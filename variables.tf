@@ -63,6 +63,23 @@ variable "beanstalk_max_size" {
   default     = 1
 }
 
+variable "beanstalk_stickiness_enabled" {
+  description = "Enable ALB sticky sessions (lb_cookie) on the default process. Needed when more than one instance serves the dashboard, because HTTP sessions live in instance memory."
+  type        = bool
+  default     = false
+}
+
+variable "beanstalk_deployment_batch_size" {
+  description = "Fixed number of instances a Rolling deployment updates at a time; the remaining instances keep serving traffic."
+  type        = number
+  default     = 1
+
+  validation {
+    condition     = var.beanstalk_deployment_batch_size >= 1 && floor(var.beanstalk_deployment_batch_size) == var.beanstalk_deployment_batch_size
+    error_message = "beanstalk_deployment_batch_size must be a whole number of at least 1."
+  }
+}
+
 variable "beanstalk_cname_prefix" {
   description = "Optional Elastic Beanstalk CNAME prefix."
   type        = string

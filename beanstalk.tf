@@ -142,9 +142,31 @@ resource "aws_elastic_beanstalk_environment" "app" {
   }
 
   setting {
+    namespace = "aws:elasticbeanstalk:environment:process:default"
+    name      = "StickinessEnabled"
+    value     = tostring(var.beanstalk_stickiness_enabled)
+    resource  = ""
+  }
+
+  setting {
     namespace = "aws:elasticbeanstalk:command"
     name      = "DeploymentPolicy"
     value     = "Rolling"
+    resource  = ""
+  }
+
+  # Elastic Beanstalk defaults to a 100% batch, which makes a Rolling deployment take every instance out at once.
+  setting {
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "BatchSizeType"
+    value     = "Fixed"
+    resource  = ""
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "BatchSize"
+    value     = tostring(var.beanstalk_deployment_batch_size)
     resource  = ""
   }
 
