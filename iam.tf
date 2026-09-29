@@ -98,22 +98,6 @@ data "aws_iam_policy_document" "app" {
   }
 
   statement {
-    sid = "SqsAppQueues"
-    actions = [
-      "sqs:ChangeMessageVisibility",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes",
-      "sqs:GetQueueUrl",
-      "sqs:ReceiveMessage",
-      "sqs:SendMessage",
-    ]
-    resources = concat(
-      [for queue in aws_sqs_queue.app : queue.arn],
-      [for queue in aws_sqs_queue.dlq : queue.arn]
-    )
-  }
-
-  statement {
     sid = "SesSend"
     actions = [
       "ses:SendEmail",
@@ -187,6 +171,35 @@ data "aws_iam_policy_document" "app" {
   }
 }
 
+data "aws_iam_policy_document" "app_sqs" {
+  statement {
+    sid = "SqsAppQueues"
+    actions = [
+      "sqs:ChangeMessageVisibility",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+      "sqs:ReceiveMessage",
+      "sqs:SendMessage",
+    ]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:sqs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/Project"
+      values   = [var.project_name]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/Environment"
+      values   = [var.environment]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "app_scheduler_pass_role" {
   statement {
     sid       = "PassSchedulerRole"
@@ -206,6 +219,11 @@ resource "aws_iam_policy" "app" {
   policy = data.aws_iam_policy_document.app.json
 }
 
+resource "aws_iam_policy" "app_sqs" {
+  name   = "${local.name_prefix}-app-sqs"
+  policy = data.aws_iam_policy_document.app_sqs.json
+}
+
 resource "aws_iam_policy" "app_dynamodb" {
   name   = coalesce(var.app_dynamodb_policy_name, "${local.name_prefix}-app-dynamodb")
   policy = data.aws_iam_policy_document.app_dynamodb.json
@@ -219,6 +237,11 @@ resource "aws_iam_policy" "app_scheduler_pass_role" {
 resource "aws_iam_role_policy_attachment" "app" {
   role       = aws_iam_role.app.name
   policy_arn = aws_iam_policy.app.arn
+}
+
+resource "aws_iam_role_policy_attachment" "app_sqs" {
+  role       = aws_iam_role.app.name
+  policy_arn = aws_iam_policy.app_sqs.arn
 }
 
 resource "aws_iam_role_policy_attachment" "app_dynamodb" {
