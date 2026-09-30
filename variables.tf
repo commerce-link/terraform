@@ -585,6 +585,36 @@ variable "api_gateway_deployment_id" {
   default     = null
 }
 
+variable "alerts_enabled" {
+  description = "Create CloudWatch alarms for SQS backlog, SQS DLQs and Beanstalk environment health, published to an SNS topic."
+  type        = bool
+  default     = false
+}
+
+variable "alerts_slack_team_id" {
+  description = "Slack workspace (team) ID authorized in AWS Chatbot. The Slack channel configuration is created only when this and alerts_slack_channel_id are set."
+  type        = string
+  default     = null
+}
+
+variable "alerts_slack_channel_id" {
+  description = "Slack channel ID receiving alert notifications through AWS Chatbot."
+  type        = string
+  default     = null
+}
+
+variable "alerts_chatbot_region" {
+  description = "Region used to manage the AWS Chatbot Slack channel configuration. Chatbot has no API endpoint in eu-central-1."
+  type        = string
+  default     = "eu-west-1"
+}
+
+variable "alerts_sqs_backlog_threshold" {
+  description = "Visible message count above which an app SQS queue alarms after 5 minutes."
+  type        = number
+  default     = 10
+}
+
 variable "cognito_generate_secret" {
   description = "Whether to generate Cognito app client secret."
   type        = bool
