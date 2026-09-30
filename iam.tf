@@ -85,10 +85,13 @@ data "aws_iam_policy_document" "app_dynamodb" {
 data "aws_iam_policy_document" "app" {
   statement {
     sid = "S3AppBuckets"
+    # The version actions let a deleted store take every old version of its files along: the buckets are versioned.
     actions = [
       "s3:DeleteObject",
+      "s3:DeleteObjectVersion",
       "s3:GetObject",
       "s3:ListBucket",
+      "s3:ListBucketVersions",
       "s3:PutObject",
     ]
     resources = concat(
