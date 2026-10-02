@@ -85,19 +85,30 @@ data "aws_iam_policy_document" "app_dynamodb" {
 data "aws_iam_policy_document" "app" {
   statement {
     sid = "S3AppBuckets"
-    # The version actions let a deleted store take every old version of its files along: the buckets are versioned.
     actions = [
       "s3:DeleteObject",
-      "s3:DeleteObjectVersion",
       "s3:GetObject",
       "s3:ListBucket",
-      "s3:ListBucketVersions",
       "s3:PutObject",
     ]
     resources = concat(
       [for bucket in aws_s3_bucket.app : bucket.arn],
       [for bucket in aws_s3_bucket.app : "${bucket.arn}/*"]
     )
+  }
+
+  statement {
+    sid = "S3StoreFileVersions"
+    # A deleted store takes every old version of its files along, as the bucket is versioned. Only the stores bucket
+    # holds a store's files, so the other buckets do not get these rights.
+    actions = [
+      "s3:DeleteObjectVersion",
+      "s3:ListBucketVersions",
+    ]
+    resources = [
+      aws_s3_bucket.app["stores"].arn,
+      "${aws_s3_bucket.app["stores"].arn}/*",
+    ]
   }
 
   statement {
