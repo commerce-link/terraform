@@ -272,7 +272,7 @@ locals {
       max_receive_count             = 5
       dlq_max_message_size          = 1048576
     }
-    # Hourly trigger for the store lifecycle sweep (deactivating ended trials, withdrawing offers, deleting stores
+    # Hourly trigger for the store lifecycle sweep (deactivating ended trials, telling their owners, deleting them
     # after the retention period). A trigger older than one interval is dropped; the next one does the same work.
     "store-lifecycle-sweep-queue" = {
       visibility_timeout_seconds    = 900
