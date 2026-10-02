@@ -272,6 +272,13 @@ locals {
       max_receive_count             = 5
       dlq_max_message_size          = 1048576
     }
+    "shipment-cancellation-queue" = {
+      visibility_timeout_seconds    = 60
+      message_retention_seconds     = 86400
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 3
+      dlq_max_message_size          = 1048576
+    }
     # Hourly trigger for the store lifecycle sweep (deactivating ended trials, telling their owners, deleting them
     # after the retention period). A trigger older than one interval is dropped; the next one does the same work.
     "store-lifecycle-sweep-queue" = {
