@@ -279,6 +279,15 @@ locals {
       max_receive_count             = 3
       dlq_max_message_size          = 1048576
     }
+    # Hourly trigger for the store lifecycle sweep (deactivating ended trials, telling their owners, deleting them
+    # after the retention period). A trigger older than one interval is dropped; the next one does the same work.
+    "store-lifecycle-sweep-queue" = {
+      visibility_timeout_seconds    = 900
+      message_retention_seconds     = 3600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 1
+      dlq_max_message_size          = 1048576
+    }
     "supplier-purchase-queue.fifo" = {
       fifo_queue                    = true
       visibility_timeout_seconds    = 120

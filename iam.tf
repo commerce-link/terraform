@@ -98,6 +98,20 @@ data "aws_iam_policy_document" "app" {
   }
 
   statement {
+    sid = "S3StoreFileVersions"
+    # A deleted store takes every old version of its files along, as the bucket is versioned. Only the stores bucket
+    # holds a store's files, so the other buckets do not get these rights.
+    actions = [
+      "s3:DeleteObjectVersion",
+      "s3:ListBucketVersions",
+    ]
+    resources = [
+      aws_s3_bucket.app["stores"].arn,
+      "${aws_s3_bucket.app["stores"].arn}/*",
+    ]
+  }
+
+  statement {
     sid = "SesSend"
     actions = [
       "ses:SendEmail",
