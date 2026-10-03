@@ -288,6 +288,13 @@ locals {
       max_receive_count             = 1
       dlq_max_message_size          = 1048576
     }
+    "supplier-purchase-completion-queue" = {
+      visibility_timeout_seconds    = 60
+      message_retention_seconds     = 86400
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 12 # 10 attempts handled by the app + margin for crashes
+      dlq_max_message_size          = 1048576
+    }
     "supplier-rolling-price-aggregate-queue" = {
       visibility_timeout_seconds     = 300
       message_retention_seconds      = 43200
