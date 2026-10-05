@@ -40,7 +40,7 @@ variable "az_count" {
 }
 
 variable "beanstalk_solution_stack_name" {
-  description = "Elastic Beanstalk solution stack for the Java application."
+  description = "Elastic Beanstalk solution stack the Java application environment is created with. Later platform updates are left to managed platform updates."
   type        = string
   default     = "64bit Amazon Linux 2023 v4.12.8 running Corretto 21"
 }
