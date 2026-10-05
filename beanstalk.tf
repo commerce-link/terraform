@@ -218,7 +218,9 @@ resource "aws_elastic_beanstalk_environment" "app" {
   }
 
   lifecycle {
-    ignore_changes = [version_label]
+    # Managed platform updates move a running environment to newer platform versions on their own. Following the
+    # variable would roll it back to an older platform on the next apply.
+    ignore_changes = [version_label, solution_stack_name]
   }
 }
 
