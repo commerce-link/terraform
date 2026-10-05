@@ -108,6 +108,13 @@ scheduler_schedules = {
     schedule_expression  = "rate(1 minute)"
     description          = "Wakes e-receipt attempts that are due (issue retries, status polling, link polling)"
   }
+
+  # Store lifecycle sweep: deactivates stores whose trial ended, tells their owners and deletes them after the
+  # retention period. Payload-less trigger, so exactly one instance runs it.
+  store-lifecycle-sweep = {
+    queue_name           = "store-lifecycle-sweep-queue"
+    schedule_expression  = "cron(17 * * * ? *)"
+  }
 }
 
 tags = {
