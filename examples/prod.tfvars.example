@@ -103,6 +103,14 @@ scheduler_schedules = {
     timezone             = "Europe/Warsaw"
   }
 
+  # Shipment tracking sweep: polls the parcels of shipping integrations without webhooks (Wysyłam z Allegro)
+  # and publishes one check per due parcel; one instance runs it.
+  shipment-tracking-sweep = {
+    queue_name           = "shipment-tracking-sweep-queue"
+    schedule_expression  = "cron(5 * * * ? *)"
+    timezone             = "Europe/Warsaw"
+  }
+
   receipt-sweep = {
     queue_name           = "receipt-sweep-queue"
     schedule_expression  = "rate(1 minute)"
