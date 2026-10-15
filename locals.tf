@@ -208,9 +208,12 @@ locals {
       dlq_message_retention_seconds = 1209600
       max_receive_count             = 1
     }
-    "report-generation-queue" = {
+    "report-generation-queue.fifo" = {
+      fifo_queue                    = true
+      content_based_deduplication   = false
       visibility_timeout_seconds    = 900
       message_retention_seconds     = 86400
+      dlq_name                      = "report-generation-dlq.fifo"
       dlq_message_retention_seconds = 1209600
       max_receive_count             = 3
     }
