@@ -151,19 +151,22 @@ locals {
       }
     }
 
+    # A non-proxy integration forwards only what is mapped: a query string parameter left out here never reaches the app.
     store_checkout_post = {
       resource_key     = "store_checkout"
       http_method      = "POST"
       api_key_required = false
       request_parameters = {
-        "method.request.path.storeId" = true
+        "method.request.path.storeId"     = true
+        "method.request.querystring.lang" = false
       }
       integration = {
         type                    = "HTTP"
         integration_http_method = "POST"
         uri_path                = "/Store/{storeId}/Checkout"
         request_parameters = {
-          "integration.request.path.storeId" = "method.request.path.storeId"
+          "integration.request.path.storeId"     = "method.request.path.storeId"
+          "integration.request.querystring.lang" = "method.request.querystring.lang"
         }
         request_templates    = {}
         passthrough_behavior = "WHEN_NO_MATCH"
@@ -288,14 +291,18 @@ locals {
       http_method      = "POST"
       api_key_required = false
       request_parameters = {
-        "method.request.path.storeId" = true
+        "method.request.path.storeId"         = true
+        "method.request.querystring.lang"     = false
+        "method.request.querystring.validate" = false
       }
       integration = {
         type                    = "HTTP"
         integration_http_method = "POST"
         uri_path                = "/Store/{storeId}/Basket"
         request_parameters = {
-          "integration.request.path.storeId" = "method.request.path.storeId"
+          "integration.request.path.storeId"         = "method.request.path.storeId"
+          "integration.request.querystring.lang"     = "method.request.querystring.lang"
+          "integration.request.querystring.validate" = "method.request.querystring.validate"
         }
         request_templates    = {}
         passthrough_behavior = "WHEN_NO_MATCH"
@@ -538,6 +545,8 @@ resource "aws_api_gateway_deployment" "app" {
 
   rest_api_id = aws_api_gateway_rest_api.app[0].id
 
+  # The ids stay the same when a method or integration is changed in place (a mapped parameter, the integration type),
+  # so the configuration itself is hashed too; otherwise such a change is applied but never deployed to the stage.
   triggers = {
     redeployment = sha1(jsonencode({
       resources             = values(local.api_gateway_resource_ids)
@@ -545,6 +554,11 @@ resource "aws_api_gateway_deployment" "app" {
       integrations          = [for integration in aws_api_gateway_integration.this : integration.id]
       method_responses      = [for response in aws_api_gateway_method_response.this : response.id]
       integration_responses = [for response in aws_api_gateway_integration_response.this : response.id]
+      configuration = {
+        methods               = local.api_gateway_methods
+        method_responses      = local.api_gateway_method_responses
+        integration_responses = local.api_gateway_integration_responses
+      }
     }))
   }
 
