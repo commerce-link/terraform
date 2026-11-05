@@ -134,6 +134,15 @@ locals {
       dlq_visibility_timeout_seconds = 300
       delay_seconds                  = 60
     }
+    # Nightly trigger of the offer matching sweep: orders matching for every marketplace connection with daily matching
+    # switched on. Never retried; a trigger older than an hour is dropped and the next evening's does the same work.
+    "marketplace-offer-match-sweep-queue" = {
+      visibility_timeout_seconds    = 300
+      message_retention_seconds     = 3600
+      dlq_message_retention_seconds = 1209600
+      max_receive_count             = 1
+      dlq_max_message_size          = 1048576
+    }
     "marketplace-order-lifecycle-queue" = {
       visibility_timeout_seconds     = 120
       message_retention_seconds      = 259200
