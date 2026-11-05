@@ -167,6 +167,11 @@ locals {
       dlq_max_message_size           = 1048576
       dlq_visibility_timeout_seconds = 60
     }
+    "marketplace-offer-match-queue" = {
+      visibility_timeout_seconds = 900
+      message_retention_seconds  = 345600
+      max_receive_count          = 3
+    }
     "order-fulfilment-queue.fifo" = {
       fifo_queue                 = true
       visibility_timeout_seconds = 30
