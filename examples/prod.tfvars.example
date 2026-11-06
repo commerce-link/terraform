@@ -117,6 +117,15 @@ scheduler_schedules = {
     description          = "Wakes e-receipt attempts that are due (issue retries, status polling, link polling)"
   }
 
+  # Offer matching sweep: every evening, before the nightly pricelist and offer export window (23:00-4:59), orders
+  # offer matching for each marketplace connection with daily matching switched on; the app spreads the starts over
+  # 15 minutes. Payload-less trigger, so exactly one instance runs it.
+  marketplace-offer-match-sweep = {
+    queue_name           = "marketplace-offer-match-sweep-queue"
+    schedule_expression  = "cron(0 22 * * ? *)"
+    timezone             = "Europe/Warsaw"
+  }
+
   # Store lifecycle sweep: deactivates stores whose trial ended, tells their owners and deletes them after the
   # retention period. Payload-less trigger, so exactly one instance runs it.
   store-lifecycle-sweep = {
