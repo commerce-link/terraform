@@ -333,13 +333,15 @@ locals {
       max_receive_count             = 3
       dlq_max_message_size          = 1048576
     }
-    # A rebuild request for a store's inventory snapshot, sent by the feed import with a per-message delay; the
+    # A rebuild request for a store's inventory snapshot, sent by the feed import. The feeds of one store are imported
+    # close to each other, so every request waits 60 seconds and those of the same store end in one rebuild; the
     # rebuild of a large store takes longer than the default 30 seconds. Must exist before the app version that
     # listens on it starts.
     "store-inventory-refresh-queue" = {
       visibility_timeout_seconds = 120
       message_retention_seconds  = 86400
       max_receive_count          = 3
+      delay_seconds              = 60
     }
     # Hourly trigger for the store lifecycle sweep (deactivating ended trials, telling their owners, deleting them
     # after the retention period). A trigger older than one interval is dropped; the next one does the same work.
